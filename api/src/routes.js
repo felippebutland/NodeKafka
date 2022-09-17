@@ -7,7 +7,6 @@ routes.post("/certifications", async (req, res) => {
   const message = {
     user: { id: 1, name: "Felippe Butland" },
     course: "Computer Science",
-    grade: 10,
   };
 
   // Chamar micro serviço
@@ -16,12 +15,6 @@ routes.post("/certifications", async (req, res) => {
     compression: CompressionTypes.GZIP,
     messages: [
       { value: JSON.stringify(message) },
-      {
-        value: JSON.stringify({
-          ...message,
-          user: { ...message.user, name: "Alexandre Zanella" },
-        }),
-      },
     ],
   });
 

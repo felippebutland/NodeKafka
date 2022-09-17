@@ -7,10 +7,12 @@
     "dev": "sucrase-node src/index.js"
   },
   "dependencies": {
-    "kafkajs": "^1.10.0"
+    "kafkajs": "^1.10.0",
+    "pg": "^8.8.0",
+    "sequelize": "^6.22.1"
   },
   "devDependencies": {
-    "nodemon": "^1.19.1",
+    "nodemon": "^2.0.20",
     "sucrase": "^3.10.1"
   }
 }
