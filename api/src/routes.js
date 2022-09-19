@@ -5,8 +5,8 @@ const routes = express.Router();
 
 routes.post("/certifications", async (req, res) => {
   const message = {
-    user: { id: 1, name: "John Doe" },
-    course: "Computer Science",
+    user: { id: 1, name: req.body.name },
+    course: req.body.course,
   };
 
   // Chamar micro serviço
