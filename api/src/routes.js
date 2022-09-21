@@ -1,17 +1,18 @@
-import express from "express";
-import { CompressionTypes } from "kafkajs";
+import express from 'express';
+import { CompressionTypes } from 'kafkajs';
+import { randomUUID } from 'crypto';
 
 const routes = express.Router();
 
-routes.post("/certifications", async (req, res) => {
+routes.post('/certifications', async (req, res) => {
   const message = {
-    user: { id: 1, name: req.body.name },
+    user: { id: randomUUID(), name: req.body.name },
     course: req.body.course,
   };
 
   // Chamar micro serviço
   await req.producer.send({
-    topic: "issue-certificate",
+    topic: 'issue-certificate',
     compression: CompressionTypes.GZIP,
     messages: [{ value: JSON.stringify(message) }],
   });

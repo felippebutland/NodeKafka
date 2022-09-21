@@ -1,15 +1,15 @@
-import { Kafka } from "kafkajs";
-const { PrismaClient } = require("@prisma/client");
+import { Kafka } from 'kafkajs';
+const { PrismaClient } = require('@prisma/client');
 
 const prisma = new PrismaClient();
 
 const kafka = new Kafka({
-  brokers: ["localhost:9092"],
-  clientId: "certificate",
+  brokers: ['localhost:9092'],
+  clientId: 'certificate',
 });
 
-const topic = "issue-certificate";
-const consumer = kafka.consumer({ groupId: "certificate-group" });
+const topic = 'issue-certificate';
+const consumer = kafka.consumer({ groupId: 'certificate-group' });
 const producer = kafka.producer();
 
 async function run() {
@@ -19,21 +19,20 @@ async function run() {
 
   await consumer.run({
     eachMessage: async ({ topic, partition, message }) => {
+      const dateMessage = await formatData();
+
       const prefix = `${topic}[${partition} | ${message.offset}] / ${message.timestamp}`;
       console.log(`${prefix} ${message.key}#${message.value}`);
 
       const payload = JSON.parse(message.value);
 
       await insertOnDb(payload).then(async (user) => {
+        const response = await formatData();
         await producer.send({
-          topic: "certification-response",
+          topic: 'certification-response',
           messages: [
             {
-              value: `Certificado do usuário ${user.name} do curso ${
-                user.course
-              } gerado às ${
-                user.createdAt
-              }!, resposta enviada às ${new Date().getHours()}:${new Date().getMinutes()}:${new Date().getSeconds()}:${new Date().getMilliseconds()}`,
+              value: `Mensagem recebida às ${dateMessage} \n Certificado do usuário ${user.name} com id ${payload.user.id}, do curso ${user.course} gerado às ${user.createdAt} \n Resposta enviada às ${response} \n \n`,
             },
           ],
         });
@@ -45,19 +44,23 @@ async function run() {
 async function insertOnDb(payload) {
   const user = await prisma.user.create({
     data: {
+      id: payload.user.id,
       name: payload.user.name,
       course: payload.course,
-      createdAt: new Date(),
     },
   });
 
   delete user.id;
   user.createdAt = `${new Date(user.createdAt).getHours()}:${new Date(
     user.createdAt
-  ).getSeconds()}:${new Date(user.createdAt).getSeconds()}:${new Date(
+  ).getMinutes()}:${new Date(user.createdAt).getSeconds()}:${new Date(
     user.createdAt
   ).getMilliseconds()}`;
   return user;
+}
+
+async function formatData() {
+  return `${new Date().getHours()}:${new Date().getMinutes()}:${new Date().getSeconds()}:${new Date().getMilliseconds()}`;
 }
 
 run().catch(console.error);
