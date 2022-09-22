@@ -22,7 +22,7 @@ async function run() {
       const dateMessage = await formatData();
 
       const prefix = `${topic}[${partition} | ${message.offset}] / ${message.timestamp}`;
-      console.log(`${prefix} ${message.key}#${message.value}`);
+      console.log(`\n ${prefix} ${message.key}#${message.value} \n`);
 
       const payload = JSON.parse(message.value);
 
